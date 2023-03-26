@@ -173,3 +173,10 @@ pub fn _print(args: fmt::Arguments) {
     use fmt::Write;
     WRITER.lock().write_fmt(args).unwrap();
 }
+
+#[test_case]
+fn trivial_assertion() {
+    print!("trivial assertion... ");
+    assert_eq!(1, 1);
+    println!("[ok]")
+}

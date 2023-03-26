@@ -6,7 +6,9 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [profile.dev]
-panic = "abort" # disable stack unwinding on panic
+# Having this enabled can lead to a "duplicate lang item" error when running `cargo test`.
+# Just commenting this out for the affected profile fixes the issue.
+# panic = "abort" # disable stack unwinding on panic
 
 [profile.release]
 panic = "abort" # disable stack unwinding on panic

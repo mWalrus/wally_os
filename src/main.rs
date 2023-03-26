@@ -1,3 +1,7 @@
+// tell the kernel that we want to use our own custom test framework
+#![feature(custom_test_frameworks)]
+#![test_runner(crate::test_runner)]
+#![reexport_test_harness_main = "test_main"]
 // don't include the standard library
 #![no_std]
 // removes the rust runtime
@@ -9,6 +13,14 @@ use core::panic::PanicInfo;
 fn panic(info: &PanicInfo) -> ! {
     println!("{info}");
     loop {}
+}
+
+#[cfg(test)]
+fn test_runner(tests: &[&dyn Fn()]) {
+    println!("Running {} tests", tests.len());
+    for test in tests {
+        test();
+    }
 }
 
 mod vga_buffer;
@@ -23,7 +35,10 @@ pub extern "C" fn _start() -> ! {
     println!("Testing formatting: {} and {}", 42 + 18, 1.0 / 3.0);
     println!("Epic new line B)");
 
-    panic!("This is a panic message!!!");
+    #[cfg(test)]
+    test_main();
+
+    // panic!("This is a panic message!!!");
     // NOTE: uncomment when removing the panic above
-    // loop {}
+    loop {}
 }
