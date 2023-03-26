@@ -1,7 +1,12 @@
 #![no_std]
 // removes the rust runtime
 #![no_main]
+
+mod vga_buffer;
+
 use core::panic::PanicInfo;
+
+use vga_buffer::Writer;
 
 static HELLO: &[u8] = b"Hello World!";
 
@@ -10,14 +15,8 @@ static HELLO: &[u8] = b"Hello World!";
 #[no_mangle]
 // since we removed the rust runtime we need to define our own entry point.
 pub extern "C" fn _start() -> ! {
-    let vga_buffer = 0xb8000 as *mut u8;
-
-    for (i, &byte) in HELLO.iter().enumerate() {
-        unsafe {
-            *vga_buffer.offset(i as isize * 2) = byte;
-            *vga_buffer.offset(i as isize * 2 + 1) = 0xb;
-        }
-    }
+    let mut writer = Writer::default();
+    writer.write_string("Writing output with VGABuffer Writer");
     loop {}
 }
 
