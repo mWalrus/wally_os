@@ -174,7 +174,33 @@ pub fn _print(args: fmt::Arguments) {
     WRITER.lock().write_fmt(args).unwrap();
 }
 
-#[test_case]
-fn trivial_assertion() {
-    assert_eq!(1, 1);
+#[cfg(test)]
+mod tests {
+    #[test_case]
+    fn println() {
+        println!("testing printing to vga buffer");
+    }
+
+    #[test_case]
+    fn println_many() {
+        for _ in 0..200 {
+            println!("testing printing to vga buffer");
+        }
+    }
+
+    #[test_case]
+    fn println_output() {
+        use super::{BUFFER_HEIGHT, WRITER};
+
+        let s = "This text should appear in the buffer";
+        // write the string to the VGA test buffer
+        println!("{s}");
+        // iterate through each character
+        for (i, c) in s.chars().enumerate() {
+            // grab the character in column `i` on the last row
+            let sc = WRITER.lock().buffer.chars[BUFFER_HEIGHT - 2][i].read();
+            // assert that they're equal
+            assert_eq!(char::from(sc.character), c);
+        }
+    }
 }
