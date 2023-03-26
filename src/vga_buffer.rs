@@ -1,3 +1,4 @@
+use volatile::Volatile;
 // https://en.wikipedia.org/wiki/Code_page_437
 const BUFFER_WIDTH: usize = 80;
 const BUFFER_HEIGHT: usize = 25;
@@ -49,7 +50,7 @@ struct ScreenChar {
 
 #[repr(transparent)]
 struct Buffer {
-    chars: [[ScreenChar; BUFFER_WIDTH]; BUFFER_HEIGHT],
+    chars: [[Volatile<ScreenChar>; BUFFER_WIDTH]; BUFFER_HEIGHT],
 }
 
 pub struct VGAWriter {
@@ -82,10 +83,10 @@ impl VGAWriter {
                 let col = self.column_position;
 
                 let color_code = self.color_code;
-                self.buffer.chars[row][col] = ScreenChar {
+                self.buffer.chars[row][col].write(ScreenChar {
                     character: byte,
                     color_code,
-                };
+                });
                 self.column_position += 1;
             }
         }
