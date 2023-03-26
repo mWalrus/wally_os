@@ -35,6 +35,12 @@ pub extern "C" fn _start() -> ! {
     println!("Testing formatting: {} and {}", 42 + 18, 1.0 / 3.0);
     println!("Epic new line B)");
 
+    wally_os::init();
+
+    // invoke a breakpoint exception
+    x86_64::instructions::interrupts::int3();
+
+    println!("didn't crash B)");
     // panic!("This is a panic message!!!");
     // NOTE: uncomment when removing the panic above
     loop {}
