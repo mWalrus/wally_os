@@ -14,12 +14,20 @@ edition = "2021"
 panic = "abort" # disable stack unwinding on panic
 
 [package.metadata.bootimage]
-# the first pair of args tell qemu to exit on test completion
-# the second pair tell qemu to direct output to stdout
-test-args = ["-device", "isa-debug-exit,iobase=0xf4,iosize=0x04", "-serial", "stdio"]
+test-args = [
+  # tell qemu to exit on test completion
+  "-device", "isa-debug-exit,iobase=0xf4,iosize=0x04",
+  # tell qemu to direct output to stdout
+  "-serial", "stdio",
+  # do not open the qemu window when running tests.
+  # we don't need this since the test output is re-routed to the terminal
+  "-display", "none"
+]
 # we specify our own success code since `cargo test` considers all non-zero exit
 # codes as a failure
 test-success-exit-code = 33
+# manually define the test timeout
+test-timeout = 300 # (this is the default but i want to keep this here)
 
 [dependencies]
 bootloader = "0.9.8"
