@@ -14,14 +14,18 @@ edition = "2021"
 panic = "abort" # disable stack unwinding on panic
 
 [package.metadata.bootimage]
-# tell qemu to exit on test completion
-test-args = ["-device", "isa-debug-exit,iobase=0xf4,iosize=0x04"]
+# the first pair of args tell qemu to exit on test completion
+# the second pair tell qemu to direct output to stdout
+test-args = ["-device", "isa-debug-exit,iobase=0xf4,iosize=0x04", "-serial", "stdio"]
 # we specify our own success code since `cargo test` considers all non-zero exit
 # codes as a failure
 test-success-exit-code = 33
+
 [dependencies]
 bootloader = "0.9.8"
 lazy_static = { version = "1.4.0", features = ["spin_no_std"] }
 spin = "0.9.6"
+uart_16550 = "0.2.18"
 # we cannot use the newer version of volatile as it is incompatible
 volatile = "0.2.6"
+x86_64 = "0.14.10"

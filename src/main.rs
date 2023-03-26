@@ -11,22 +11,28 @@ use core::panic::PanicInfo;
 // we have to implement our own panic handler since we no longer have access to the standard library
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
-    println!("{info}");
+    serial_println!("[failed]\n");
+    serial_println!("Error: {}\n", info);
     loop {}
 }
 
 #[cfg(test)]
 fn test_runner(tests: &[&dyn Fn()]) {
     use crate::exit::{exit_qemu, QemuExitCode};
-    println!("Running {} tests", tests.len());
+
+    serial_println!("Running {} tests", tests.len());
     for test in tests {
         test();
     }
+
     exit_qemu(QemuExitCode::Success);
 }
 
-mod exit;
+#[macro_use]
+mod serial;
+#[macro_use]
 mod vga_buffer;
+mod exit;
 
 // no_mangle ensures that the compiler really outputs a function with the name "_start".
 // if we dont specify this, the compiler will mangle this name to something random
