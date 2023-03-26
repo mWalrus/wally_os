@@ -3,7 +3,7 @@
 // removes the rust runtime
 #![no_main]
 
-use core::panic::PanicInfo;
+use core::{fmt::Write, panic::PanicInfo};
 // we have to implement our own panic handler since we no longer have access to the standard library
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
@@ -21,6 +21,7 @@ use vga_buffer::VGAWriter;
 // `_start` is the default entry point on most systems.
 pub extern "C" fn _start() -> ! {
     let mut writer = VGAWriter::default();
-    writer.write_string("Writing output with VGABuffer Writer");
+    // writer.write_string("Writing output with VGABuffer Writer");
+    write!(writer, "Testing formatting: {} and {}", 42 + 18, 1.0 / 3.0).unwrap();
     loop {}
 }

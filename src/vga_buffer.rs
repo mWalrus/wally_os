@@ -1,4 +1,7 @@
+use core::fmt;
+
 use volatile::Volatile;
+
 // https://en.wikipedia.org/wiki/Code_page_437
 const BUFFER_WIDTH: usize = 80;
 const BUFFER_HEIGHT: usize = 25;
@@ -67,6 +70,13 @@ impl Default for VGAWriter {
             // assign the buffer member a mutable pointer to the VGA text buffer
             buffer: unsafe { &mut *(0xb8000 as *mut Buffer) },
         }
+    }
+}
+
+impl fmt::Write for VGAWriter {
+    fn write_str(&mut self, s: &str) -> fmt::Result {
+        self.write_string(s);
+        Ok(())
     }
 }
 
