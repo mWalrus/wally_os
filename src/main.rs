@@ -17,12 +17,15 @@ fn panic(info: &PanicInfo) -> ! {
 
 #[cfg(test)]
 fn test_runner(tests: &[&dyn Fn()]) {
+    use crate::exit::{exit_qemu, QemuExitCode};
     println!("Running {} tests", tests.len());
     for test in tests {
         test();
     }
+    exit_qemu(QemuExitCode::Success);
 }
 
+mod exit;
 mod vga_buffer;
 
 // no_mangle ensures that the compiler really outputs a function with the name "_start".
