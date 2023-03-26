@@ -2,11 +2,11 @@
 #![no_main]
 
 use core::panic::PanicInfo;
-use wally_os::{exit_qemu, serial_print, serial_println, QemuExitCode};
+use wally_os::{exit_qemu, serial_print, serial_println, Failed, Okay, QemuExitCode, TEST_SEP};
 
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
-    serial_println!("[ok]");
+    serial_println!("{}", Okay);
     exit_qemu(QemuExitCode::Success);
     loop {}
 }
@@ -14,7 +14,7 @@ fn panic(_info: &PanicInfo) -> ! {
 #[no_mangle]
 pub extern "C" fn _start() -> ! {
     should_fail();
-    serial_println!("[test did not panic]");
+    serial_println!("{}", Failed("test did not panic"));
     exit_qemu(QemuExitCode::Failure);
     loop {}
 }
@@ -28,6 +28,6 @@ pub fn test_runner(tests: &[&dyn Fn()]) {
 }
 
 fn should_fail() {
-    serial_print!("should_panic::should_fail..........");
+    serial_print!("should_panic::should_fail{}", TEST_SEP);
     assert_eq!(0, 1);
 }

@@ -10,7 +10,30 @@ pub mod serial;
 #[macro_use]
 pub mod vga_buffer;
 
+use core::fmt;
 use core::panic::PanicInfo;
+
+pub static TEST_SEP: &str = "..........";
+pub struct Okay;
+pub struct Failed(pub &'static str);
+
+impl fmt::Display for Okay {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "\x1B[32m[ok]\x1b[0m")
+    }
+}
+
+impl fmt::Display for Failed {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "\x1B[31m[{}]\x1b[0m", self.0)
+    }
+}
+
+impl Default for Failed {
+    fn default() -> Self {
+        Self("failed")
+    }
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u32)]
@@ -37,9 +60,9 @@ where
     T: Fn(),
 {
     fn run(&self) {
-        serial_print!("{}...\t", core::any::type_name::<T>());
+        serial_print!("{}{}", core::any::type_name::<T>(), TEST_SEP);
         self();
-        serial_println!("[ok]");
+        serial_println!("{}", Okay);
     }
 }
 
@@ -52,7 +75,7 @@ pub fn test_runner(tests: &[&dyn Testable]) {
 }
 
 pub fn test_panic_handler(info: &PanicInfo) -> ! {
-    serial_println!("[failed]\n");
+    serial_println!("{}\n", Failed::default());
     serial_println!("Error: {}\n", info);
     exit_qemu(QemuExitCode::Failure);
     loop {}
