@@ -6,7 +6,8 @@
 use core::panic::PanicInfo;
 // we have to implement our own panic handler since we no longer have access to the standard library
 #[panic_handler]
-fn panic(_info: &PanicInfo) -> ! {
+fn panic(info: &PanicInfo) -> ! {
+    println!("{info}");
     loop {}
 }
 
@@ -21,5 +22,8 @@ pub extern "C" fn _start() -> ! {
     // writer.write_string("Writing output with VGABuffer Writer");
     println!("Testing formatting: {} and {}", 42 + 18, 1.0 / 3.0);
     println!("Epic new line B)");
-    loop {}
+
+    panic!("This is a panic message!!!");
+    // NOTE: uncomment when removing the panic above
+    // loop {}
 }
