@@ -10,6 +10,7 @@
 pub mod serial;
 #[macro_use]
 pub mod vga_buffer;
+pub mod gdt;
 pub mod interrupts;
 
 use core::fmt;
@@ -99,5 +100,6 @@ fn panic(info: &PanicInfo) -> ! {
 }
 
 pub fn init() {
+    gdt::init();
     interrupts::init_idt();
 }

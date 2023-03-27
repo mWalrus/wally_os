@@ -44,9 +44,14 @@ pub extern "C" fn _start() -> ! {
     // this alone does not cause a double fault, but a page fault.
     // The reason a double fault occurs is because we have not implemented
     // a page fault handler for the IDT.
-    unsafe {
-        *(0xdeadbeef as *mut u64) = 42;
+    // unsafe {
+    //     *(0xdeadbeef as *mut u64) = 42;
+    // }
+    fn stack_overflow() {
+        stack_overflow();
     }
+
+    stack_overflow();
 
     println!("didn't crash B)");
     // panic!("This is a panic message!!!");
