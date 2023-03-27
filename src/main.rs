@@ -40,7 +40,10 @@ pub extern "C" fn _start() -> ! {
     // invoke a breakpoint exception
     // x86_64::instructions::interrupts::int3();
 
-    // trigger a page fault by writing to and invalid memory address
+    // trigger a page fault by writing to and invalid memory address.
+    // this alone does not cause a double fault, but a page fault.
+    // The reason a double fault occurs is because we have not implemented
+    // a page fault handler for the IDT.
     unsafe {
         *(0xdeadbeef as *mut u64) = 42;
     }
