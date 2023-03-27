@@ -35,6 +35,12 @@ test-timeout = 300 # (this is the default but i want to keep this here)
 name = "should_panic"
 harness = false
 
+# Disable the harness for our stack_overflow tests.
+# This tells the compiler to treat this like a normal executable.
+[[test]]
+name = "stack_overflow"
+harness = false
+
 [dependencies]
 bootloader = "0.9.8"
 lazy_static = { version = "1.4.0", features = ["spin_no_std"] }

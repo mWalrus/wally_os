@@ -10,7 +10,6 @@ use wally_os::println;
 #[no_mangle]
 pub extern "C" fn _start() -> ! {
     test_main();
-
     loop {}
 }
 
