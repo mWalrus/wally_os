@@ -16,7 +16,7 @@ use wally_os::println;
 fn panic(info: &PanicInfo) -> ! {
     println!("[failed]\n");
     println!("Error: {}\n", info);
-    loop {}
+    wally_os::htl_loop()
 }
 
 #[cfg(test)]
@@ -56,7 +56,6 @@ pub extern "C" fn _start() -> ! {
     // stack_overflow();
 
     println!("didn't crash B)");
-    // panic!("This is a panic message!!!");
-    // NOTE: uncomment when removing the panic above
-    loop {}
+
+    wally_os::htl_loop()
 }
