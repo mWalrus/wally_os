@@ -161,6 +161,8 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
     }
     ///////////////////////////////////////////////
 
+    #[cfg(test)]
+    test_main();
     println!("didn't crash B)");
 
     wally_os::hlt_loop()
