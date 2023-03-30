@@ -44,9 +44,43 @@ pub extern "C" fn _start() -> ! {
     // this alone does not cause a double fault, but a page fault.
     // The reason a double fault occurs is because we have not implemented
     // a page fault handler for the IDT.
+
     // unsafe {
     //     *(0xdeadbeef as *mut u64) = 42;
     // }
+
+    // Trigger a page fault by trying to assign a value to a memory address
+    // outside of our kernels memory region.
+    // let ptr = 0xdeadbeaf as *mut u32;
+
+    // unsafe {
+    //     *ptr = 42;
+    // }
+
+    // the page fault error's stack frame gives us an instruction pointer.
+    // If we swap out 0xdeadbeaf for the instruction pointer and try to read
+    // from and write to this address, we should be able to read without
+    // triggering a page fault!
+    // Writing is still not permitted due to a protection violation.
+    // This means that the address is present and valid, but we are not allowed
+    // to write to it.
+    // let ptr = 0x2075f7 as *mut u32;
+    // unsafe {
+    //     let _x = *ptr;
+    //     println!("reading from address {ptr:x?} worked");
+    // }
+    // unsafe {
+    //     *ptr = 42;
+    //     println!("writing to address {ptr:x?} worked");
+    // }
+
+    use x86_64::registers::control::Cr3;
+
+    let (level_4_page_table, _) = Cr3::read();
+    println!(
+        "Level 4 page table at: {table:?}",
+        table = level_4_page_table.start_address()
+    );
 
     // an easy stack overflow trigger
     // fn stack_overflow() {
