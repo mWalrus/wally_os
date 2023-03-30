@@ -134,35 +134,56 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
 
     ///////////////////////////////////////////////
     // try out our virtual -> physical address translation function
+    // use wally_os::memory;
+    // use x86_64::{structures::paging::Translate, VirtAddr};
+    // let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
+    // // init the offset page table
+    // let mapper = unsafe { memory::init(phys_mem_offset) };
+    // let addresses = [
+    //     // the identity-mapped vga buffer page
+    //     0xb8000,
+    //     // some code page
+    //     0x201008,
+    //     // some stack page
+    //     0x0100_002_1a10,
+    //     // virtual address mapped to physical address 0
+    //     // since our current implementation does not support huge pages,
+    //     // this address translation panics.
+    //     boot_info.physical_memory_offset,
+    // ];
+    // for &address in &addresses {
+    //     let virt = VirtAddr::new(address);
+    //     // use the x86_64 provided translate_addr instead of our own.
+    //     // we import `x86_64::structures::paging::Translate` in order
+    //     // to use this method.
+    //     let phys = mapper.translate_addr(virt);
+    //     println!("{virt:?} -> {phys:?}");
+    // }
+    ///////////////////////////////////////////////
+
+    ///////////////////////////////////////////////
     use wally_os::memory;
-    use x86_64::{structures::paging::Translate, VirtAddr};
+    use x86_64::{structures::paging::Page, VirtAddr};
     let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
-    // init the offset page table
-    let mapper = unsafe { memory::init(phys_mem_offset) };
-    let addresses = [
-        // the identity-mapped vga buffer page
-        0xb8000,
-        // some code page
-        0x201008,
-        // some stack page
-        0x0100_002_1a10,
-        // virtual address mapped to physical address 0
-        // since our current implementation does not support huge pages,
-        // this address translation panics.
-        boot_info.physical_memory_offset,
-    ];
-    for &address in &addresses {
-        let virt = VirtAddr::new(address);
-        // use the x86_64 provided translate_addr instead of our own.
-        // we import `x86_64::structures::paging::Translate` in order
-        // to use this method.
-        let phys = mapper.translate_addr(virt);
-        println!("{virt:?} -> {phys:?}");
-    }
+    let mut mapper = unsafe { memory::init(phys_mem_offset) };
+    let mut frame_allocator = memory::EmptyFrameAllocator;
+
+    //map an unused page
+    let page = Page::containing_address(VirtAddr::new(0));
+    // doesn't work because the page for this address has no associated
+    // level 1 page table yet and our empty frame allocator cannot create
+    // new page tables.
+    // let page = Page::containing_address(VirtAddr::new(0xdeadbeaf0000));
+    memory::create_example_mapping(page, &mut mapper, &mut frame_allocator);
+
+    // write the string `New!` to the screen through the new mapping
+    let page_ptr: *mut u64 = page.start_address().as_mut_ptr();
+    unsafe { page_ptr.offset(400).write_volatile(0xf021_f077_f065_f04e) };
     ///////////////////////////////////////////////
 
     #[cfg(test)]
     test_main();
+
     println!("didn't crash B)");
 
     wally_os::hlt_loop()

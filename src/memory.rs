@@ -1,6 +1,9 @@
+use bootloader::bootinfo::{MemoryMap, MemoryRegionType};
 use x86_64::{
-    structures::paging::{OffsetPageTable, PageTable},
-    VirtAddr,
+    structures::paging::{
+        FrameAllocator, Mapper, OffsetPageTable, Page, PageTable, PhysFrame, Size4KiB,
+    },
+    PhysAddr, VirtAddr,
 };
 
 pub unsafe fn init(physical_memory_offset: VirtAddr) -> OffsetPageTable<'static> {
@@ -28,4 +31,13 @@ unsafe fn active_level_4_table(physical_memory_offset: VirtAddr) -> &'static mut
     // 5. create a mutable reference of the raw pointer because we will
     //    want to modify this table later
     &mut *page_table_ptr
+}
+pub struct EmptyFrameAllocator;
+// unsafe because the implementer must guarantee that the allocator
+// yeilds only unused frames. Otherwise, undefined behavior might occur,
+// for example when two virtual pages are mapped to the same physical frame.
+unsafe impl FrameAllocator<Size4KiB> for EmptyFrameAllocator {
+    fn allocate_frame(&mut self) -> Option<PhysFrame<Size4KiB>> {
+        None
+    }
 }
