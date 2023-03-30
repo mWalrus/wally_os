@@ -13,6 +13,8 @@ pub mod vga_buffer;
 pub mod gdt;
 pub mod interrupts;
 
+#[cfg(test)]
+use bootloader::{entry_point, BootInfo};
 use core::fmt;
 use core::panic::PanicInfo;
 
@@ -84,10 +86,13 @@ pub fn test_panic_handler(info: &PanicInfo) -> ! {
     hlt_loop()
 }
 
+// this change is explained in `src/main.rs`
+#[cfg(test)]
+entry_point!(test_kernel_main);
+
 /// Entry point for `cargo test`
 #[cfg(test)]
-#[no_mangle]
-pub extern "C" fn _start() -> ! {
+fn test_kernel_main(_boot_info: &'static BootInfo) -> ! {
     init();
     test_main();
     hlt_loop()

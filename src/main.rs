@@ -7,6 +7,7 @@
 #![test_runner(wally_os::test_runner)]
 #![reexport_test_harness_main = "test_main"]
 
+use bootloader::{entry_point, BootInfo};
 use core::panic::PanicInfo;
 use wally_os::println;
 
@@ -25,12 +26,18 @@ fn panic(info: &PanicInfo) -> ! {
     wally_os::test_panic_handler(info)
 }
 
-// no_mangle ensures that the compiler really outputs a function with the name "_start".
-// if we dont specify this, the compiler will mangle this name to something random
-#[no_mangle]
-// since we removed the rust runtime we need to define our own entry point.
-// `_start` is the default entry point on most systems.
-pub extern "C" fn _start() -> ! {
+// This macro ensures that the kernel's entry point has the correct signature.
+// If we don't do this check and we take any arbitrary arguments, we would still compile just fine
+// but, since it has the incorrect signature, would cause undefined behaviour at runtime.
+entry_point!(kernel_main);
+
+// we no longer need to mark this function as `extern "C"` or use the `#[no_mangle]` attribute on
+// this function anymore since all of that is handled internally in the `entry_point` macro.
+
+// BootInfo: since the kernel needs access to the memory map and offset to be able to handle memory
+// we ask the bootloader to pass this information along to us since we won't be able to access this
+// later.
+fn kernel_main(boot_info: &'static BootInfo) -> ! {
     // writer.write_string("Writing output with VGABuffer Writer");
     println!("Testing formatting: {} and {}", 42 + 18, 1.0 / 3.0);
     println!("Epic new line B)");

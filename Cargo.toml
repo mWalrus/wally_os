@@ -42,7 +42,7 @@ name = "stack_overflow"
 harness = false
 
 [dependencies]
-bootloader = "0.9.8"
+bootloader = { version = "0.9.8", features = ["map_physical_memory"] }
 lazy_static = { version = "1.4.0", features = ["spin_no_std"] }
 spin = "0.9.6"
 uart_16550 = "0.2.18"
