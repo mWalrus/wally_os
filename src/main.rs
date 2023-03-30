@@ -16,7 +16,7 @@ use wally_os::println;
 fn panic(info: &PanicInfo) -> ! {
     println!("[failed]\n");
     println!("Error: {}\n", info);
-    wally_os::htl_loop()
+    wally_os::hlt_loop()
 }
 
 #[cfg(test)]
@@ -57,5 +57,5 @@ pub extern "C" fn _start() -> ! {
 
     println!("didn't crash B)");
 
-    wally_os::htl_loop()
+    wally_os::hlt_loop()
 }
