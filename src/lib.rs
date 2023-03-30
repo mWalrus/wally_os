@@ -12,6 +12,7 @@ pub mod serial;
 pub mod vga_buffer;
 pub mod gdt;
 pub mod interrupts;
+pub mod memory;
 
 #[cfg(test)]
 use bootloader::{entry_point, BootInfo};
