@@ -134,9 +134,11 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
 
     ///////////////////////////////////////////////
     // try out our virtual -> physical address translation function
-    use wally_os::memory::translate_addr;
-    use x86_64::VirtAddr;
+    use wally_os::memory;
+    use x86_64::{structures::paging::Translate, VirtAddr};
     let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
+    // init the offset page table
+    let mapper = unsafe { memory::init(phys_mem_offset) };
     let addresses = [
         // the identity-mapped vga buffer page
         0xb8000,
@@ -151,7 +153,10 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
     ];
     for &address in &addresses {
         let virt = VirtAddr::new(address);
-        let phys = unsafe { translate_addr(virt, phys_mem_offset) };
+        // use the x86_64 provided translate_addr instead of our own.
+        // we import `x86_64::structures::paging::Translate` in order
+        // to use this method.
+        let phys = mapper.translate_addr(virt);
         println!("{virt:?} -> {phys:?}");
     }
     ///////////////////////////////////////////////
