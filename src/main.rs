@@ -10,6 +10,7 @@
 use bootloader::{entry_point, BootInfo};
 use core::panic::PanicInfo;
 use wally_os::println;
+use x86_64::structures::paging::Size4KiB;
 
 // we have to implement our own panic handler since we no longer have access to the standard library
 #[cfg(not(test))]
@@ -166,15 +167,14 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
     use x86_64::{structures::paging::Page, VirtAddr};
     let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
     let mut mapper = unsafe { memory::init(phys_mem_offset) };
-    let mut frame_allocator = memory::EmptyFrameAllocator;
+    let mut frame_allocator =
+        unsafe { memory::BootInfoFrameAllocator::init(&boot_info.memory_map) };
 
-    //map an unused page
-    let page = Page::containing_address(VirtAddr::new(0));
-    // doesn't work because the page for this address has no associated
-    // level 1 page table yet and our empty frame allocator cannot create
-    // new page tables.
-    // let page = Page::containing_address(VirtAddr::new(0xdeadbeaf0000));
-    memory::create_example_mapping(page, &mut mapper, &mut frame_allocator);
+    // this now works because we are able to create page tables
+    // with our frame allocator :D
+    let page: Page<Size4KiB> = Page::containing_address(VirtAddr::new(0xdeadbeaf0000));
+    // WARN: can cause undefined behavior, do NOT use!
+    // memory::create_example_mapping(page, &mut mapper, &mut frame_allocator);
 
     // write the string `New!` to the screen through the new mapping
     let page_ptr: *mut u64 = page.start_address().as_mut_ptr();
